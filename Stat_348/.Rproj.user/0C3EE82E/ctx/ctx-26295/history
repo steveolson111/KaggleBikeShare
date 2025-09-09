@@ -1,0 +1,410 @@
+train <- vroom("C:/Users/Administrator/OneDrive - Brigham Young University/1School/Stat 348/BikeShare/train.csv")
+library(tidyverse)
+library(tidymodels)
+library(vroom)
+train <- vroom("C:/Users/Administrator/OneDrive - Brigham Young University/1School/Stat 348/BikeShare/train.csv")
+plot_intro(train)
+glimpse(train)
+library(ggplot)
+library(ggpairs)
+library(ggpair)
+library(ggalley)
+install.packages(ggalley)
+install.packages(ggally)
+install.packages(GGally)
+install.packages('GGally')
+library(GGally)
+train <- vroom("C:/Users/Administrator/OneDrive - Brigham Young University/1School/Stat 348/BikeShare/train.csv")
+glimpse(train)
+ggpairs(train)
+ggpairs(train)
+View(train)
+#Recognize something about weather...
+ggplot(data=train, mapping=aes(x=registered, y=count, color=)) + ... # Set
+#Recognize something about weather...
+ggplot(data=train, mapping=aes(x=registered, y=count)) + ... # Set
+#Recognize something about weather...
+ggplot(data=train, mapping=aes(x=registered, y=count))
+#Recognize something about weather...
+ggplot(data=train, mapping=aes(x=registered, y=count, color=registered))
+#Recognize something about weather...
+ggplot(data=train, mapping=aes(x=registered, y=count)) + geom_point()
+plot2 <- ggplot(data=train, mapping=aes(x=weather, y=count)) + geom_point()
+plot2
+plot2 <- ggplot(data=train, mapping=aes(x=weather, y=count)) + geom_bar()
+plot2
+plot2 <- ggplot(data=train, mapping=aes(x=weather, y=count)) + geom_bar()
+plot2
+plot2 <- ggplot(data=train, mapping=aes(x=weather, y=count)) +
+geom_bar(stat = "identity", fill = "steelblue") +
+labs(title = "Bike Usage by Weather Type", x = "Weather Type",
+y = "Total Bike Count") + theme_minimal()
+plot2
+plot2 <- ggplot(data=train, mapping=aes(x=weather, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot2
+geom_bar(stat = "identity", fill = "steelblue") +
+labs(title = "Bike Usage by Weather Type", x = "Weather Type",
+y = "Total Bike Count") + theme_minimal()
+plot2 <- ggplot(data=train, mapping=aes(x=weather, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot2
+geom_bar(stat = "identity", fill = "steelblue") +
+labs(title = "Bike Usage by Weather Type", x = "Weather Type",
+y = "Total Bike Count") + theme_minimal()
+plot1 <- ggplot(data=train, mapping=aes(x=registered, y=count)) +
+geom_point()+ labs(title="Bike Usage by Number of Registered Users",
+x="Number of Registered Users", y="Total Bike Count")
+plot3 <- ggplot(data=train, mapping=aes(x=workingday, y=count)) +
+geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day",
+x="Number of Registered Users", y="Total Bike Count")
+plot3
+plot3 <- ggplot(data=train, mapping=aes(aes(x = factor(workingday,
+levels = c(0, 1), labels = c("No", "Yes")), y=count)) +
+geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day",
+x="Number of Registered Users", y="Total Bike Count")
+plot3
+plot3 <- ggplot(data=train, mapping=aes(aes(x = factor(workingday,
+levels = c(0, 1), labels = c("No", "Yes")), y=count)) +
+geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day",
+x="Number of Registered Users", y="Total Bike Count")
+plot3
+plot3 <- ggplot(data=train, mapping=aes(aes(x = factor(workingday,
+levels = c(0, 1), labels = c("No", "Yes")), y=count)) +
+geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day",
+x= "Number of Registered Users", y="Total Bike Count")
+plot3
+plot3 <- ggplot(data=train, mapping=aes(aes(x = factor(workingday,
+levels = c(0, 1), labels = c("No", "Yes")), y=count)) +
+geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day",
+x= "Number of Registered Users", y="Total Bike Count")
+plot3
+plot3
+plot3 <- ggplot(data=train, mapping=aes(x = factor(workingday,
+levels = c(0, 1), labels = c("No", "Yes")), y=count)) +
+geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day",
+x= "Number of Registered Users", y="Total Bike Count")
+plot3
+plot3 <- ggplot(data=train, mapping=aes(x = factor(workingday,
+levels = c(0, 1), labels = c("No", "Yes")), y=count)) +
+geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day",
+x= "Working Day", y="Total Bike Count")
+plot3
+plot4 <- ggpairs(train)+labs(title="Bike Usage by Number of Registered Users",
+x="Number of Registered Users", y="Total Bike Count")
+(plot1 + plot2) / (plot3 + plot4) #4 panel plot
+plot1 <- ggplot(data=train, mapping=aes(x=registered, y=count)) +
+geom_point()+ labs(title="Bike Usage by Number of Registered Users",
+x="Number of Registered Users", y="Total Bike Count")
+plot2 <- ggplot(data=train, mapping=aes(x=weather, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")+theme_minimal()
+plot3 <- ggplot(data=train, mapping=aes(x = factor(workingday,
+levels = c(0, 1), labels = c("No", "Yes")), y=count)) +
+geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day",
+x= "Working Day", y="Total Bike Count")
+plot4 <- ggpairs(train)+labs(title="Bike Usage by Number of Registered Users",
+x="Number of Registered Users", y="Total Bike Count")
+(plot1 + plot2) / (plot3 + plot4) #4 panel plot
+plot2 <- ggplot(data=train, mapping=aes(x=weather, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")+theme_minimal()
+plot2
+plot1 <- ggplot(data=train, mapping=aes(x=registered, y=count)) +
+geom_point()+ labs(title="Bike Usage by Number of Registered Users",
+x="Number of Registered Users", y="Total Bike Count")
+plot2 <- ggplot(data=train, mapping=aes(x=weather, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")+theme_minimal()
+plot3 <- ggplot(data=train, mapping=aes(x = factor(workingday,
+levels = c(0, 1), labels = c("No", "Yes")), y=count)) +
+geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day",
+x= "Working Day", y="Total Bike Count")
+plot4 <- ggpairs(train)+labs(title="Bike Usage by Number of Registered Users",
+x="Number of Registered Users", y="Total Bike Count")
+(plot1 + plot2) / (plot3 + plot4) #4 panel plot
+plot4 <- ggplot(data=train, mapping=aes(x=atemp, y=count)) +
+geom_point()+ labs(title="Bike Usage based on 'Feels-like' Temperature",
+x="'Feels-like' Temperature", y="Total Bike Count")
+plot4
+plot4 <- ggplot(data=train, mapping=aes(x=atemp, y=count)) +
+geom_point()+ geom_line()+ labs(title="Bike Usage based on 'Feels-like' Temperature",
+x="'Feels-like' Temperature", y="Total Bike Count")
+plot4
+plot4 <- ggplot(data=train, mapping=aes(x=atemp, y=count)) +
+geom_point()+ geom_smooth()+ labs(title="Bike Usage based on 'Feels-like' Temperature",
+x="'Feels-like' Temperature", y="Total Bike Count")
+plot4
+plot4 <- ggplot(data=train, mapping=aes(x=atemp, y=count)) +
+geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage based on 'Feels-like' Temperature",
+x="'Feels-like' Temperature", y="Total Bike Count")
+plot4
+plot1 <- ggplot(data=train, mapping=aes(x=registered, y=count)) +
+geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage by Number of Registered Users",
+x="Number of Registered Users", y="Total Bike Count")
+plot2 <- ggplot(data=train, mapping=aes(x=weather, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")+theme_minimal()
+plot3 <- ggplot(data=train, mapping=aes(x = factor(workingday,
+levels = c(0, 1), labels = c("No", "Yes")), y=count)) +
+geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day Usage",
+x= "Working Day", y="Total Bike Count")
+plot4 <- ggplot(data=train, mapping=aes(x=atemp, y=count)) +
+geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage based on 'Feels-like' Temperature",
+x="'Feels-like' Temperature", y="Total Bike Count")
+(plot1 + plot2) / (plot3 + plot4) #4 panel plot
+plot1 <- ggplot(data=train, mapping=aes(x=registered, y=count)) +
+geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage by Number of Registered Users",
+x="Number of Registered Users", y="Total Bike Count")
+plot2 <- ggplot(data=train, mapping=aes(x=weather, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot3 <- ggplot(data=train, mapping=aes(x = factor(workingday,
+levels = c(0, 1), labels = c("No", "Yes")), y=count)) +
+geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day Usage",
+x= "Working Day", y="Total Bike Count")
+plot4 <- ggplot(data=train, mapping=aes(x=atemp, y=count)) +
+geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage based on 'Feels-like' Temperature",
+x="'Feels-like' Temperature", y="Total Bike Count")
+(plot1 + plot2) / (plot3 + plot4) #4 panel plot
+rlang::last_trace()
+plot1 <- ggplot(data=train, mapping=aes(x=registered, y=count)) +
+geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage
+by Number of Registered Users",
+x="Number of Registered Users", y="Total Bike Count")
+plot2 <- ggplot(data=train, mapping=aes(x = factor(weather,
+levels = c(1, 2, 3, 4), labels = c("Heavy Precip", "Light
+Precip", "Cloudy", "Clear" )), y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot3 <- ggplot(data=train, mapping=aes(x = factor(workingday,
+levels = c(0, 1), labels = c("No", "Yes")), y=count)) +
+geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day Usage",
+x= "Working Day", y="Total Bike Count")
+plot4 <- ggplot(data=train, mapping=aes(x=atemp, y=count)) +
+geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage based on 'Feels-like' Temperature",
+x="'Feels-like' Temperature", y="Total Bike Count")
+(plot1 + plot2) / (plot3 + plot4) #4 panel plot
+plot2 <- ggplot(data=train, mapping=aes(x = factor(weather,
+levels = c(1, 2, 3, 4), labels = c("Heavy Precip", "Light
+Precip", "Cloudy", "Clear" )), y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot2
+plot2 <- ggplot(data=train, mapping=aes(x = factor(weather,
+levels = c(4, 3, 2, 1), labels = c("Heavy Precip", "Light
+Precip", "Cloudy", "Clear" )), y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot2
+plot1 <- ggplot(data=train, mapping=aes(x=registered, y=count)) +
+geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage
+by Number of Registered Users",
+x="Number of Registered Users", y="Total Bike Count")
+plot2 <- ggplot(data=train, mapping=aes(x = factor(weather,
+levels = c(4, 3, 2, 1), labels = c("Heavy Precip", "Light
+Precip", "Cloudy", "Clear" )), y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot2
+plot3 <- ggplot(data=train, mapping=aes(x = factor(workingday,
+levels = c(0, 1), labels = c("No", "Yes")), y=count)) +
+geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day Usage",
+x= "Working Day", y="Total Bike Count")
+plot4 <- ggplot(data=train, mapping=aes(x=atemp, y=count)) +
+geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage based on 'Feels-like' Temperature",
+x="'Feels-like' Temperature", y="Total Bike Count")
+(plot1 + plot2) / (plot3 + plot4) #4 panel plot
+rlang::last_trace()
+plot2 <- ggplot(data=train, weather_edit = factor(weather,
+levels = c(4, 3, 2, 1), labels = c("Heavy Precip", "Light
+Precip", "Cloudy", "Clear" )), mapping=aes(x = weather_edit, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot2
+plot2 <- ggplot(transform(data=train, weather_edit = factor(weather,
+levels = c(4, 3, 2, 1), labels = c("Heavy Precip", "Light
+Precip", "Cloudy", "Clear" ))), mapping=aes(x = weather_edit, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot2 <- ggplot(transform(data=train, weather_edit = factor(weather,
+levels = c(4, 3, 2, 1), labels = c("Heavy Precip", "Light
+Precip", "Cloudy", "Clear" ))), aes(x = weather_edit, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot2 <- ggplot(transform(train, weather_label = factor(weather,
+levels = c(4, 3, 2, 1),
+labels = c("Heavy Precip", "Light Precip", "Cloudy", "Clear"))),
+aes(x = weather_label, y = count)) +
+geom_bar(stat = "identity", fill = "steelblue") +
+labs(title = "Bike Usage by Weather Type",
+x = "Weather Type",
+y = "Total Bike Count")
+plot2
+plot2 <- ggplot(transform(data=train, weather_edit = factor(weather,
+levels = c(4, 3, 2, 1), labels = c("Heavy Precip", "Light
+Precip", "Cloudy", "Clear" ))), aes(x = weather_edit, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot2 <- ggplot(transform(data=train, weather_edit = factor(weather,
+levels = c(4, 3, 2, 1), labels = c("Heavy Precip", "Light
+Precip", "Cloudy", "Clear" ))), aes(x = weather_edit, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot2 <- ggplot(transform(train, weather_label = factor(weather,
+levels = c(4, 3, 2, 1),
+labels = c("Heavy Precip", "Light Precip", "Cloudy", "Clear"))),
+aes(x = weather_label, y = count)) +
+geom_bar(stat = "identity", fill = "steelblue") +
+labs(title = "Bike Usage by Weather Type",
+x = "Weather Type",
+y = "Total Bike Count")
+plot2
+plot2 <- ggplot(transform(data=train, weather_edit = factor(weather,
+levels = c(4, 3, 2, 1), labels = c("Heavy Precip", "Light
+Precip", "Cloudy", "Clear" ))), aes(x = weather_edit, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot2 <- ggplot(transform(data=train, weather_edit = factor(weather,
+levels = c(4, 3, 2, 1), labels = c("Heavy Precip", "Light
+Precip", "Cloudy", "Clear" ))), aes(x = weather_edit, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot2 <- ggplot(transform(train, weather_edit = factor(weather,
+levels = c(4, 3, 2, 1), labels = c("Heavy Precip", "Light
+Precip", "Cloudy", "Clear" ))), aes(x = weather_edit, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot2
+plot3 <- ggplot(transform(train, workingday_edit = factor(workingday,
+levels = c(0, 1), labels = c("No", "Yes"))), aes(x = workingday_edit, y=count)) +
+geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day Usage",
+x= "Working Day", y="Total Bike Count")
+plot3
+plot1 <- ggplot(data=train, mapping=aes(x=registered, y=count)) +
+geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage
+by Number of Registered Users",
+x="Number of Registered Users", y="Total Bike Count")
+plot2 <- ggplot(transform(train, weather_edit = factor(weather,
+levels = c(4, 3, 2, 1), labels = c("Heavy Precip", "Light
+Precip", "Cloudy", "Clear" ))), aes(x = weather_edit, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot3 <- ggplot(transform(train, workingday_edit = factor(workingday,
+levels = c(0, 1), labels = c("No", "Yes"))), aes(x = workingday_edit, y=count)) +
+geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day Usage",
+x= "Working Day", y="Total Bike Count")
+plot3
+plot4 <- ggplot(data=train, mapping=aes(x=atemp, y=count)) +
+geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage based on 'Feels-like' Temperature",
+x="'Feels-like' Temperature", y="Total Bike Count")
+(plot1 + plot2) / (plot3 + plot4) #4 panel plot
+plot2 <- ggplot(data=train, weather_edit = factor(weather,
+levels = c(4, 3, 2, 1), labels = c("Heavy Precip", "Light
+Precip", "Cloudy", "Clear" )), mapping=aes(x = weather_edit, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot2
+plot2 <- ggplot(data=train, mapping=aes(x = factor(weather,
+levels = c(1, 2, 3, 4), labels = c("Heavy Precip", "Light
+Precip", "Cloudy", "Clear" )), y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot2
+plot2 <- ggplot(data=train, mapping=aes(x = factor(weather,
+levels = c(4, 3, 2 1), labels = c("Heavy Precip", "Light
+plot2 <- ggplot(data=train, mapping=aes(x = factor(weather,
+levels = c(4, 3, 2 1), labels = c("Heavy Precip", "Light
+plot2 <- ggplot(data=train, mapping=aes(x = factor(weather,
+levels = c(4, 3, 2 1), labels = c("Heavy Precip", "Light
+plot2 <- ggplot(data=train, mapping=aes(x = factor(weather,
+levels = c(4, 3, 2, 1), labels = c("Heavy Precip", "Light
+Precip", "Cloudy", "Clear" )), y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot2
+plot3 <- ggplot(data=train, mapping=aes(x = factor(workingday,
+levels = c(0, 1), labels = c("No", "Yes")), y=count)) +
+geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day Usage",
+x= "Working Day", y="Total Bike Count")
+plot3
+plot4 <- ggplot(data=train, mapping=aes(x=atemp, y=count)) +
+geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage based on 'Feels-like' Temperature",
+x="'Feels-like' Temperature", y="Total Bike Count")
+plot4
+plot1 <- ggplot(data=train, mapping=aes(x=registered, y=count)) +
+geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage
+by Number of Registered Users",
+x="Number of Registered Users", y="Total Bike Count")
+plot2 <- ggplot(data=train, mapping=aes(x = factor(weather,
+levels = c(4, 3, 2, 1), labels = c("Heavy Precip", "Light
+Precip", "Cloudy", "Clear" )), y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot3 <- ggplot(data=train, mapping=aes(x = factor(workingday,
+levels = c(0, 1), labels = c("No", "Yes")), y=count)) +
+geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day Usage",
+x= "Working Day", y="Total Bike Count")
+plot4 <- ggplot(data=train, mapping=aes(x=atemp, y=count)) +
+geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage based on 'Feels-like' Temperature",
+x="'Feels-like' Temperature", y="Total Bike Count")
+(plot1 + plot2) / (plot1 + plot2) #4 panel plot
+rlang::last_trace()
+plot1 <- ggplot(data=train, mapping=aes(x=registered, y=count)) +
+geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage
+by Number of Registered Users",
+x="Number of Registered Users", y="Total Bike Count")
+#plot2 <- ggplot(data=train, mapping=aes(x = factor(weather,
+# levels = c(4, 3, 2, 1), labels = c("Heavy Precip", "Light
+#Precip", "Cloudy", "Clear" )), y=count)) +
+#geom_bar(stat="identity", fill="steelblue") +
+#labs(title = "Bike Usage by Weather Type", x="Weather Type",
+#    y="Total Bike Count")
+plot2 <- ggplot(data=train, mapping=aes(x = weather, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot3 <- ggplot(data=train, mapping=aes(x = factor(workingday,
+levels = c(0, 1), labels = c("No", "Yes")), y=count)) +
+geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day Usage",
+x= "Working Day", y="Total Bike Count")
+plot4 <- ggplot(data=train, mapping=aes(x=atemp, y=count)) +
+geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage based on 'Feels-like' Temperature",
+x="'Feels-like' Temperature", y="Total Bike Count")
+(plot1 + plot2) / (plot1 + plot2) #4 panel plot
+plot2 <- ggplot(data=train, mapping=aes(x = weather, y=count)) +
+geom_bar(stat="identity", fill="steelblue") +
+labs(title = "Bike Usage by Weather Type", x="Weather Type",
+y="Total Bike Count")
+plot2
+library(tidyverse)
+library(tidymodels)
+library(vroom)
+install.packages('GGally')
+library(GGally)
