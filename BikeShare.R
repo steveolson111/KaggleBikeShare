@@ -1,12 +1,12 @@
 library(tidyverse)
 library(tidymodels)
 library(vroom)
-install.packages('GGally')
+#install.packages('GGally')
 library(GGally)
 
 train <- vroom("C:/Users/Administrator/OneDrive - Brigham Young University/1School/Stat 348/BikeShare/train.csv")
 glimpse(train)
-ggpairs(train)
+#ggpairs(train)
 
 #Recognize something about weather...
 
@@ -14,24 +14,21 @@ ggpairs(train)
 library(patchwork)
 plot1 <- ggplot(data=train, mapping=aes(x=registered, y=count)) + 
   geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage 
-  by Number of Registered Users",
-                                            x="Number of Registered Users", y="Total Bike Count")
-#plot2 <- ggplot(data=train, mapping=aes(x = factor(weather,
-# levels = c(4, 3, 2, 1), labels = c("Heavy Precip", "Light 
-#Precip", "Cloudy", "Clear" )), y=count)) +
-#geom_bar(stat="identity", fill="steelblue") + 
-#labs(title = "Bike Usage by Weather Type", x="Weather Type",
-#    y="Total Bike Count")
-plot2 <- ggplot(data=train, mapping=aes(x = weather, y=count)) +
+  & Registered Users",
+  x="Number of Registered Users", y="Total Bike Count")
+plot2 <- ggplot(data=train, mapping=aes(x = factor(weather,
+  levels = c(4, 3, 2, 1), labels = c("Heavy Precip", "Light 
+  Precip", "Cloudy", "Clear" )), y=count)) +
   geom_bar(stat="identity", fill="steelblue") + 
   labs(title = "Bike Usage by Weather Type", x="Weather Type",
-       y="Total Bike Count")
+  y="Total Bike Count")
 plot2
 plot3 <- ggplot(data=train, mapping=aes(x = factor(workingday,
-                                                   levels = c(0, 1), labels = c("No", "Yes")), y=count)) + 
+  levels = c(0, 1), labels = c("No", "Yes")), y=count)) + 
   geom_bar(stat="identity", fill="steelblue")+ labs(title="Working Day Usage",
-                                                    x= "Working Day", y="Total Bike Count")
+  x= "Working Day", y="Total Bike Count")
 plot4 <- ggplot(data=train, mapping=aes(x=atemp, y=count)) + 
   geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage based on 'Feels-like' Temperature",
-                                            x="'Feels-like' Temperature", y="Total Bike Count")
-(plot1 + plot2) / (plot1 + plot2) #4 panel plot
+  x="'Feels-like' Temperature (C)", y="Total Bike Count")
+
+(plot1 + plot2) / (plot3 + plot4) #4 panel plot
