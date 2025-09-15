@@ -32,7 +32,7 @@ plot4 <- ggplot(data=train, mapping=aes(x=atemp, y=count)) +
   geom_point()+ geom_smooth(se=FALSE)+ labs(title="Bike Usage based on 'Feels-like' Temperature",
                                             x="'Feels-like' Temperature (C)", y="Total Bike Count")
 
-(plot1 + plot2) / (plot3 + plot4) #4 panel plot
+#(plot1 + plot2) / (plot3 + plot4) #4 panel plot
 
 # Logistic Regression analysis to get slightly more accurate than just linear
 train <- train %>% select(-casual, -registered) %>%
@@ -44,13 +44,14 @@ library(tidymodels)
 bike_recipe <- recipe(log_count~., data=train) %>% # Set model formula and dataset
   step_mutate(weather=ifelse(weather==4, 3, weather)) %>% #Mutate for just 3 categories
   step_mutate(weather=factor(weather, levels= c(1,2,3), labels=c("Clear", "Cloudy", "Severe"))) %>% #Make something a factor
-  step_mutate(weather=factor(season, levels= c(1,2,3,4), labels=c("Spring", "Summer", "Fall", "Winter"))) %>% #Make something a factor
-  step_mutate(newTemp=temp*atemp) %>% #Create a new variable
-  step_date(datetime, features="dow") %>% # gets day of week
+  step_mutate(season=factor(season, levels= c(1,2,3,4), labels=c("Spring", "Summer", "Fall", "Winter"))) %>% #Make something a factor
+  step_mutate(newTemp=temp*atemp, difTemp=temp-atemp) %>% #Create 3 new variables
+  step_date(datetime, features="dow") %>% # gets day of week and month and year
   step_time(datetime, features=c("hour", "minute")) %>% #create time variable
   step_dummy(all_nominal_predictors()) %>% #create dummy variables
   step_zv(all_predictors()) %>% #removes zero-variance predictors
-  step_corr(all_numeric_predictors(), threshold=0.5)  # removes > than .5 corr
+  step_normalize(temp, atemp, humidity, windspeed)%>%
+  step_corr(all_numeric_predictors(), threshold=0.8) # removes > than .8 corr
 prepped_recipe <- prep(bike_recipe) # Sets up the preprocessing using myDataSet
 bake(prepped_recipe, new_data=test)
 
