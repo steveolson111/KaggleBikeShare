@@ -3,6 +3,7 @@ library(tidymodels)
 library(vroom)
 #install.packages('GGally')
 library(GGally)
+library(lubridate)
 
 train <- vroom("C:/Users/Administrator/OneDrive - Brigham Young University/1School/Stat 348/BikeShare/train.csv")
 test <- vroom("C:/Users/Administrator/OneDrive - Brigham Young University/1School/Stat 348/BikeShare/test.csv")
@@ -39,6 +40,15 @@ train <- train %>% select(-casual, -registered) %>%
   mutate(log_count = log1p(count)) %>% 
   select(-count)
 
+train <- train %>% mutate(
+    dow = wday(datetime, week_start = 1) - 1,  # 0 = Monday
+    hour = hour(datetime),
+    hour_of_week = dow * 24 + hour)
+test <- test %>%
+  mutate( dow = lubridate::wday(datetime, week_start = 1) - 1,
+    hour = lubridate::hour(datetime),
+    hour_of_week = dow * 24 + hour)
+
 ## Workflows Homework
 library(tidymodels)
 bike_recipe <- recipe(log_count~., data=train) %>% # Set model formula and dataset
@@ -48,12 +58,15 @@ bike_recipe <- recipe(log_count~., data=train) %>% # Set model formula and datas
   step_mutate(newTemp=temp*atemp, difTemp=temp-atemp) %>% #Create 3 new variables
   step_date(datetime, features="dow") %>% # gets day of week and month and year
   step_time(datetime, features=c("hour", "minute")) %>% #create time variable
+  step_mutate(hour_of_week_sin = sin(2 * pi * hour_of_week / 168),
+              hour_of_week_cos = cos(2 * pi * hour_of_week / 168))%>%
+  step_rm(datetime)%>%
   step_dummy(all_nominal_predictors()) %>% #create dummy variables
   step_zv(all_predictors()) %>% #removes zero-variance predictors
   step_normalize(temp, atemp, humidity, windspeed)%>%
   step_corr(all_numeric_predictors(), threshold=0.8) # removes > than .8 corr
 prepped_recipe <- prep(bike_recipe) # Sets up the preprocessing using myDataSet
-bake(prepped_recipe, new_data=test)
+baked_dataset <-bake(prepped_recipe, new_data=test)
 
 ## Setup and Fit the Linear Regression Model
 my_linear_model <- linear_reg() %>% #Type of model
