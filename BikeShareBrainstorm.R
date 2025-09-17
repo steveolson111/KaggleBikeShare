@@ -3,7 +3,7 @@ library(tidymodels)
 library(vroom)
 #install.packages('GGally')
 library(GGally)
-library(lubridate)
+library(glmnet)
 
 train <- vroom("C:/Users/Administrator/OneDrive - Brigham Young University/1School/Stat 348/BikeShare/train.csv")
 test <- vroom("C:/Users/Administrator/OneDrive - Brigham Young University/1School/Stat 348/BikeShare/test.csv")
@@ -40,31 +40,34 @@ train <- train %>% select(-casual, -registered) %>%
   mutate(log_count = log1p(count)) %>% 
   select(-count)
 
-train <- train %>% mutate(dow = wday(datetime, week_start = 1) - 1,  # 0 = Monday
-                          hour = hour(datetime),
-                          hour_of_week = dow * 24 + hour)
-test <- test %>% mutate( dow = lubridate::wday(datetime, week_start = 1) - 1,
-                         hour = lubridate::hour(datetime),
-                         hour_of_week = dow * 24 + hour)
-
 ## Workflows Homework
 library(tidymodels)
+#Try breaking week into 168 hours, ask chat for ideas? And try sin and cos!
 bike_recipe <- recipe(log_count~., data=train) %>% # Set model formula and dataset
   step_mutate(weather=ifelse(weather==4, 3, weather)) %>% #Mutate for just 3 categories
   step_mutate(weather=factor(weather, levels= c(1,2,3), labels=c("Clear", "Cloudy", "Severe"))) %>% #Make something a factor
   step_mutate(season=factor(season, levels= c(1,2,3,4), labels=c("Spring", "Summer", "Fall", "Winter"))) %>% #Make something a factor
-  step_mutate(newTemp=temp*atemp, difTemp=temp-atemp) %>% #Create 3 new variables
+  step_mutate(difTemp=temp-atemp) %>% #Create 3 new variables
+  step_dummy(all_nominal_predictors()) %>% #make dummy variables
   step_date(datetime, features="dow") %>% # gets day of week and month and year
   step_time(datetime, features=c("hour", "minute")) %>% #create time variable
-  step_mutate(hour_of_week_sin = sin(2 * pi * hour_of_week / 168),
-              hour_of_week_cos = cos(2 * pi * hour_of_week / 168))%>%
   step_rm(datetime)%>%
   step_dummy(all_nominal_predictors()) %>% #create dummy variables
   step_zv(all_predictors()) %>% #removes zero-variance predictors
-  step_normalize(temp, atemp, humidity, windspeed)%>%
+  step_normalize(all_numeric_predictors())%>%
   step_corr(all_numeric_predictors(), threshold=0.8) # removes > than .8 corr
 prepped_recipe <- prep(bike_recipe) # Sets up the preprocessing using myDataSet
-baked_dataset <-bake(prepped_recipe, new_data=test)
+bake(prepped_recipe, new_data=test)
+
+## Penalized regression model
+preg_model <- linear_reg(penalty=0.0000000001, mixture=.25) %>% #Set model and tuning, remember mixture is between 0 and 1 and
+  #penalty is bigger than 0, try like .1 to .01)
+  set_engine("glmnet") # Function to fit in R
+preg_wf <- workflow() %>%
+  add_recipe(bike_recipe) %>%
+  add_model(preg_model) %>%
+  fit(data=train)
+bike_predictions <- predict(preg_wf, new_data=test)
 
 ## Setup and Fit the Linear Regression Model
 ##my_linear_model <- linear_reg() %>% #Type of model
@@ -74,62 +77,23 @@ baked_dataset <-bake(prepped_recipe, new_data=test)
 #bike_predictions <- predict(my_linear_model,
 #new_data=test)# Use fit to predict
 
-preg_model <- linear_reg(penalty=tune(),
-                         mixture=tune()) %>% #Set model and tuning
-  set_engine("glmnet") # Function to fit in R
-
-## Set Workflow
-preg_wf <- workflow() %>%
-  add_recipe(bike_recipe) %>%
-  add_model(preg_model)
-
-## Grid of values to tune over
-grid_of_tuning_params <- grid_regular(penalty(),
-                                      mixture(),
-                                      levels = 5) ## L^2 total tuning possibilities
-
-## Split data for CV
-folds <- vfold_cv(train, v = 10, repeats=1)
-
-## Run the CV1
-CV_results <- preg_wf %>%
-  tune_grid(resamples=folds,
-            grid=grid_of_tuning_params,
-            metrics=metric_set(rmse, mae)) #Or leave metrics NULL
-
-## Plot Results (example)
-collect_metrics(CV_results) %>% # Gathers metrics into DF
-  filter(.metric=="rmse") %>%
-  ggplot(data=., aes(x=penalty, y=mean, color=factor(mixture))) +
-  geom_line()
-
-## Find Best Tuning Parameters
-bestTune <- CV_results %>%
-  select_best(metric="rmse")
-
-bestTune
-
-final_wf <- preg_wf %>%
-  finalize_workflow(bestTune) %>%
-  fit(data=train)
-
-## Predict
-final_wf %>%
-  predict(new_data = test)
-
 ## Combine into a Workflow and fit
-bike_workflow <- workflow() %>%
-  add_recipe(bike_recipe) %>%
-  add_model(my_linear_model) %>%
-  fit(data=train)
+##bike_workflow <- workflow() %>%
+ ## add_recipe(bike_recipe) %>%
+  ##add_model(my_linear_model) %>%
+  ##fit(data=train)
 #fit(formula=log_count~., data=train) 
 
 ## Run all the steps on test data
-lin_preds <- predict(bike_workflow, new_data = test)
+#lin_preds <- predict(bike_workflow, new_data = test)
 
-bike_predictions <- lin_preds %>%
-  mutate(.pred = expm1(.pred))
-bike_predictions ## Look at the output
+
+#bike_predictions <- lin_preds %>%
+#  mutate(.pred = expm1(.pred))
+#bike_predictions ## Look at the output
+bike_predictions <- bike_predictions %>%
+   mutate(.pred = expm1(.pred))
+  bike_predictions ## Look at the output
 
 
 ## Format the Predictions for Submission to Kaggle

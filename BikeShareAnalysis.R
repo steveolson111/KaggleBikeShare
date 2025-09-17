@@ -46,6 +46,21 @@ train <- train %>% mutate(dow = wday(datetime, week_start = 1) - 1,  # 0 = Monda
 test <- test %>% mutate( dow = lubridate::wday(datetime, week_start = 1) - 1,
     hour = lubridate::hour(datetime),
     hour_of_week = dow * 24 + hour)
+train <- train %>%
+  mutate(hour_category = case_when(
+    hour >= 6 & hour < 10 ~ "morning_commute",
+    hour >= 10 & hour < 16 ~ "midday",
+    hour >= 16 & hour < 20 ~ "evening_commute",
+    TRUE ~ "night"
+  ))
+
+test <- test %>%
+  mutate(hour_category = case_when(
+    hour >= 6 & hour < 10 ~ "morning_commute",
+    hour >= 10 & hour < 16 ~ "midday",
+    hour >= 16 & hour < 20 ~ "evening_commute",
+    TRUE ~ "night"))
+
 
 ## Workflows Homework
 library(tidymodels)
