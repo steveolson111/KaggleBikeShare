@@ -40,12 +40,10 @@ train <- train %>% select(-casual, -registered) %>%
   mutate(log_count = log1p(count)) %>% 
   select(-count)
 
-train <- train %>% mutate(
-    dow = wday(datetime, week_start = 1) - 1,  # 0 = Monday
+train <- train %>% mutate(dow = wday(datetime, week_start = 1) - 1,  # 0 = Monday
     hour = hour(datetime),
     hour_of_week = dow * 24 + hour)
-test <- test %>%
-  mutate( dow = lubridate::wday(datetime, week_start = 1) - 1,
+test <- test %>% mutate( dow = lubridate::wday(datetime, week_start = 1) - 1,
     hour = lubridate::hour(datetime),
     hour_of_week = dow * 24 + hour)
 
@@ -70,8 +68,8 @@ baked_dataset <-bake(prepped_recipe, new_data=test)
 
 ## Setup and Fit the Linear Regression Model
 my_linear_model <- linear_reg() %>% #Type of model
-  set_engine("lm") %>% # Engine = What R function to use
-  set_mode("regression") # Regression just means quantitative response
+set_engine("lm") %>% # Engine = What R function to use
+set_mode("regression") # Regression just means quantitative response
 ## Generate Predictions Using Linear Model
 #bike_predictions <- predict(my_linear_model,
 #new_data=test)# Use fit to predict
