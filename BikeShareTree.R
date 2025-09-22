@@ -84,7 +84,7 @@ tuned_results <- tune_grid(
   metrics = metric_set(rmse, rsq))
 
 ## Find best tuning parameters
-best_params <- select_best(tuned_results, "rmse")
+best_params <- select_best(tuned_results, metric = "rmse")
 #best_params
 
 ## Finalize workflow and predict
