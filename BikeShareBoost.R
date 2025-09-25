@@ -38,43 +38,31 @@ test <- test %>%
     hour >= 16 & hour < 20 ~ "evening_commute",
     TRUE ~ "night"))
 
-
 ## Create a workflow with recipe & model
 bike_recipe <- recipe(log_count~., data=train) %>% # Set model formula and dataset
   step_mutate(weather=ifelse(weather==4, 3, weather)) %>% #Mutate for just 3 categories
   step_mutate(weather=factor(weather, levels= c(1,2,3), labels=c("Clear", "Cloudy", "Severe"))) %>% #Make something a factor
   step_mutate(season=factor(season, levels= c(1,2,3,4), labels=c("Spring", "Summer", "Fall", "Winter"))) %>% #Make something a factor
-  #step_interact(~ weather:season)%>%
-  step_mutate(wind_temp = windspeed * temp)%>%
-  step_poly(humidity, degree = 2)%>%
-  #step_interact(~ temp:humidity + windspeed:humidity)%>%
-  step_mutate(dow_sin = sin(2 * pi * dow / 7),
-              dow_cos = cos(2 * pi * dow / 7))%>%
   step_mutate(newTemp=temp*atemp, difTemp=temp-atemp) %>% #Create 3 new variables
-  step_poly(temp, degree = 2)%>%
   step_date(datetime, features="dow") %>% # gets day of week and month and year
   step_time(datetime, features=c("hour", "minute")) %>% #create time variable
-  step_mutate(is_rush_hour = as.factor(if_else(hour %in% c(7,8,9,16,17,18), 1, 0)))%>%
-  step_mutate(is_work_hour = as.factor(if_else(hour >= 9 & hour < 17, 1, 0)) )%>%
-  step_mutate(is_daylight = as.factor(if_else(hour >= 7 & hour <= 19, 1, 0)) )%>%
   step_mutate(hour_of_week_sin = sin(2 * pi * hour_of_week / 168),
               hour_of_week_cos = cos(2 * pi * hour_of_week / 168))%>%
   step_mutate(hour_sin = sin(2 * pi * hour / 168),
               hour_cos = cos(2 * pi * hour / 168))%>%
-  step_mutate(hour_sq = hour^2)%>%
   step_rm(datetime)%>%
   step_dummy(all_nominal_predictors()) %>% #create dummy variables
   step_zv(all_predictors()) %>% #removes zero-variance predictors
-  step_normalize(atemp, windspeed)%>%
+  step_normalize(temp, atemp, humidity, windspeed)%>%
   step_corr(all_numeric_predictors(), threshold=0.8) # removes > than .8 corr
 prepped_recipe <- prep(bike_recipe) # Sets up the preprocessing using myDataSet
 baked_dataset <-bake(prepped_recipe, new_data=test)
 
 #boost_model <- boost_tree(tree_depth=tune(),
-#trees=tune(),
-#learn_rate=tune()) %>%
-#set_engine("lightgbm") %>% #or "xgboost" but lightgbm is faster
-#set_mode("regression")
+                          #trees=tune(),
+                          #learn_rate=tune()) %>%
+  #set_engine("lightgbm") %>% #or "xgboost" but lightgbm is faster
+  #set_mode("regression")
 
 bart_model <- bart(trees=tune()) %>% # BART figures out depth and learn_rate
   set_engine("dbarts") %>% # might need to install
@@ -89,7 +77,7 @@ set.seed(123)
 ## Set up grid of tuning values for decision tree
 bart_grid <- grid_regular(
   trees(range = c(50, 500)),
-  levels = 5)
+ levels = 5)
 
 ## Set up K-fold CV
 # Tune the workflow
@@ -127,4 +115,3 @@ kaggle_submission <- bike_predictions %>%
   mutate(datetime=as.character(format(datetime))) #needed for right format to Kaggle
 ## Write out the file
 vroom_write(x=kaggle_submission, file="./LinearPreds.csv", delim=",")
-
