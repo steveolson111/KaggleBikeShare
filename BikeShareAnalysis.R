@@ -62,13 +62,28 @@ bike_recipe <- recipe(log_count~., data=train) %>% # Set model formula and datas
   step_mutate(hour_sin = sin(2 * pi * hour / 168),
               hour_cos = cos(2 * pi * hour / 168))%>%
   step_mutate(hour_sq = hour^2)%>%
+  step_mutate(
+    is_weekend = as.factor(if_else(dow %in% c(0, 6), 1, 0)),
+    is_morning = as.factor(if_else(hour >= 6 & hour < 12, 1, 0)),
+    is_evening = as.factor(if_else(hour >= 17 & hour < 21, 1, 0)),
+    is_holiday_weekend = as.factor(if_else(holiday == 1 & dow %in% c(0,6), 1, 0)),
+    is_near_holiday = as.factor(if_else(lag(holiday, 1, default = 0) == 1 |
+                            lead(holiday, 1, default = 0) == 1, 1, 0)) )%>%
   step_rm(datetime)%>%
   step_dummy(all_nominal_predictors()) %>% #create dummy variables
   step_zv(all_predictors()) %>% #removes zero-variance predictors
   step_normalize(atemp, windspeed)%>%
   step_corr(all_numeric_predictors(), threshold=0.8) # removes > than .8 corr
+
+bike_recipe <- bike_recipe %>%
+  step_dummy(all_nominal_predictors()) %>%
+  step_rm(wind_temp,temp_poly_2,difTemp,weather_Cloudy,datetime_dow_Tue,
+          datetime_dow_Fri,datetime_dow_Sat,is_rush_hour_X1,is_weekend_X1,is_evening_X1,)  # example dummy names to remove
+
 prepped_recipe <- prep(bike_recipe) # Sets up the preprocessing using myDataSet
 baked_dataset <-bake(prepped_recipe, new_data=test)
+
+
 
 #boost_model <- boost_tree(tree_depth=tune(),
 #trees=tune(),
@@ -128,3 +143,39 @@ kaggle_submission <- bike_predictions %>%
 ## Write out the file
 vroom_write(x=kaggle_submission, file="./LinearPreds.csv", delim=",")
 
+##########################################################################
+##########################################################################
+##########################################################################
+#Try to guess what features were most helpful?
+
+
+#To help see the column names!
+processed_train <- juice(prepped_recipe)
+colnames(processed_train)
+
+# Extract the dbarts model object
+bart_fit <- extract_fit_engine(final_model)
+
+# Get variable importance scores (number of times variable used in splits)
+importance_scores <- bart_fit$varcount %>%
+  colSums() %>%
+  sort(decreasing = TRUE)
+
+# Turn into a tibble for plotting
+importance_df <- tibble(
+  variable = names(importance_scores),
+  importance = importance_scores
+)
+
+# Plot top 20 variables
+library(ggplot2)
+
+importance_df %>%
+  slice_max(order_by = importance, n = 20) %>%
+  ggplot(aes(x = reorder(variable, importance), y = importance)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(title = "BART Variable Importance",
+       x = "Variable",
+       y = "Importance (Split Count)") +
+  theme_minimal()
