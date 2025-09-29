@@ -23,6 +23,7 @@ train <- train %>% mutate(dow = wday(datetime, week_start = 1) - 1,  # 0 = Monda
 test <- test %>% mutate( dow = lubridate::wday(datetime, week_start = 1) - 1,
                          hour = lubridate::hour(datetime),
                          hour_of_week = dow * 24 + hour)
+
 train <- train %>%
   mutate(hour_category = case_when(
     hour >= 6 & hour < 10 ~ "morning_commute",
@@ -44,13 +45,10 @@ bike_recipe <- recipe(log_count~., data=train) %>% # Set model formula and datas
   step_mutate(weather=ifelse(weather==4, 3, weather)) %>% #Mutate for just 3 categories
   step_mutate(weather=factor(weather, levels= c(1,2,3), labels=c("Clear", "Cloudy", "Severe"))) %>% #Make something a factor
   step_mutate(season=factor(season, levels= c(1,2,3,4), labels=c("Spring", "Summer", "Fall", "Winter"))) %>% #Make something a factor
-  #step_interact(~ weather:season)%>%
   step_mutate(wind_temp = windspeed * temp)%>%
   step_poly(humidity, degree = 2)%>%
-  #step_interact(~ temp:humidity + windspeed:humidity)%>%
   step_mutate(dow_sin = sin(2 * pi * dow / 7),
               dow_cos = cos(2 * pi * dow / 7))%>%
-  step_mutate(newTemp=temp*atemp, difTemp=temp-atemp) %>% #Create 3 new variables
   step_poly(temp, degree = 2)%>%
   step_date(datetime, features="dow") %>% # gets day of week and month and year
   step_time(datetime, features=c("hour", "minute")) %>% #create time variable
@@ -59,31 +57,21 @@ bike_recipe <- recipe(log_count~., data=train) %>% # Set model formula and datas
   step_mutate(is_daylight = as.factor(if_else(hour >= 7 & hour <= 19, 1, 0)) )%>%
   step_mutate(hour_of_week_sin = sin(2 * pi * hour_of_week / 168),
               hour_of_week_cos = cos(2 * pi * hour_of_week / 168))%>%
-  step_mutate(hour_sin = sin(2 * pi * hour / 168),
-              hour_cos = cos(2 * pi * hour / 168))%>%
+  step_mutate(hour_sin = sin(2 * pi * hour / 24),
+              hour_cos = cos(2 * pi * hour / 24))%>%
   step_mutate(hour_sq = hour^2)%>%
   step_mutate(
-    is_weekend = as.factor(if_else(dow %in% c(0, 6), 1, 0)),
     is_morning = as.factor(if_else(hour >= 6 & hour < 12, 1, 0)),
     is_evening = as.factor(if_else(hour >= 17 & hour < 21, 1, 0)),
-    is_holiday_weekend = as.factor(if_else(holiday == 1 & dow %in% c(0,6), 1, 0)),
-    is_near_holiday = as.factor(if_else(lag(holiday, 1, default = 0) == 1 |
-                            lead(holiday, 1, default = 0) == 1, 1, 0)) )%>%
+    is_holiday_weekend = as.factor(if_else(holiday == 1 & dow %in% c(0,6), 1, 0)) )%>%
+  step_mutate(hour = as.factor(hour))%>%
   step_rm(datetime)%>%
   step_dummy(all_nominal_predictors()) %>% #create dummy variables
   step_zv(all_predictors()) %>% #removes zero-variance predictors
   step_normalize(atemp, windspeed)%>%
-  step_corr(all_numeric_predictors(), threshold=0.8) # removes > than .8 corr
-
-bike_recipe <- bike_recipe %>%
-  step_dummy(all_nominal_predictors()) %>%
-  step_rm(wind_temp,temp_poly_2,difTemp,weather_Cloudy,datetime_dow_Tue,
-          datetime_dow_Fri,datetime_dow_Sat,is_rush_hour_X1,is_weekend_X1,is_evening_X1,)  # example dummy names to remove
-
+  step_corr(all_numeric_predictors(), threshold=0.9) # removes > than .8 corr
 prepped_recipe <- prep(bike_recipe) # Sets up the preprocessing using myDataSet
-baked_dataset <-bake(prepped_recipe, new_data=test)
-
-
+baked_dataset <-bake(prepped_recipe, new_data=train)
 
 #boost_model <- boost_tree(tree_depth=tune(),
 #trees=tune(),
@@ -126,6 +114,32 @@ final_wf <- finalize_workflow(
   best_params)
 
 final_model <- fit(final_wf, data = train)
+
+################################################################################
+
+## Libraries
+#install.packages("h2o", repos = "https://h2o-release.s3.amazonaws.com/h2o/latest_stable_R")
+
+library(agua) #Install if necessary
+system("java -version")
+
+## Initialize an h2o session
+h2o::h2o.init()
+
+## Define the model
+## max_runtime_secs = how long to let h2o.ai run
+## max_models = how many models to stack
+auto_model <- auto_ml() %>%
+  set_engine("h2o", max_runtime_secs=60, max_models=5) %>%
+  set_mode("regression")
+
+## Combine into Workflow
+automl_wf <- workflow() %>%
+  add_recipe(bike_recipe) %>%
+  add_model(auto_model) %>%
+  fit(data=train)
+
+final_model <- fit(automl_wf, data = train)
 
 tree_preds <- predict(final_model, new_data = test)
 ## Finalize workflow and predict
@@ -179,3 +193,4 @@ importance_df %>%
        x = "Variable",
        y = "Importance (Split Count)") +
   theme_minimal()
+ 

@@ -5,7 +5,6 @@ library(vroom)
 library(rpart)
 library(bonsai)
 library(lightgbm)
-library(GGally)
 
 
 ## CV tune, finalize and predict here and save results
@@ -49,8 +48,8 @@ bike_recipe <- recipe(log_count~., data=train) %>% # Set model formula and datas
   step_time(datetime, features=c("hour", "minute")) %>% #create time variable
   step_mutate(hour_of_week_sin = sin(2 * pi * hour_of_week / 168),
               hour_of_week_cos = cos(2 * pi * hour_of_week / 168))%>%
-  #step_mutate(hour_sin = sin(2 * pi * hour / 24),   #best result was with /168 here and line below?
-              #hour_cos = cos(2 * pi * hour / 24))%>%
+  step_mutate(hour_sin = sin(2 * pi * hour / 24),   #best result was with /168 here and line below?
+              hour_cos = cos(2 * pi * hour / 24))%>%
   step_mutate(hour = as.factor(hour))%>%
   step_rm(datetime)%>%
   step_dummy(all_nominal_predictors()) %>% #create dummy variables
@@ -60,60 +59,38 @@ bike_recipe <- recipe(log_count~., data=train) %>% # Set model formula and datas
 prepped_recipe <- prep(bike_recipe) # Sets up the preprocessing using myDataSet
 baked_dataset <-bake(prepped_recipe, new_data=test)
 
-########Checking what was correlated... 
-#tidy(prepped_recipe, number = 14)
-# now checking what it all correlated with...
-#ggpairs(baked_dataset)
-
-
-
 #boost_model <- boost_tree(tree_depth=tune(),
-                          #trees=tune(),
-                          #learn_rate=tune()) %>%
-  #set_engine("lightgbm") %>% #or "xgboost" but lightgbm is faster
-  #set_mode("regression")
+#trees=tune(),
+#learn_rate=tune()) %>%
+#set_engine("lightgbm") %>% #or "xgboost" but lightgbm is faster
+#set_mode("regression")
 
-bart_model <- bart(trees=tune()) %>% # BART figures out depth and learn_rate
-  set_engine("dbarts") %>% # might need to install
+library(agua) #Install if necessary
+system("java -version")
+
+## Initialize an h2o session
+h2o::h2o.init()
+
+## Define the model
+## max_runtime_secs = how long to let h2o.ai run
+## max_models = how many models to stack
+auto_model <- auto_ml() %>%
+  set_engine("h2o", max_runtime_secs=60, max_models=5) %>%
   set_mode("regression")
 
-## Combine into a Workflow and fit
-bike_workflow <- workflow() %>%
+## Combine into Workflow
+automl_wf <- workflow() %>%
   add_recipe(bike_recipe) %>%
-  add_model(bart_model)
+  add_model(auto_model) %>%
+  fit(data=train)
 
-set.seed(123)
-## Set up grid of tuning values for decision tree
-bart_grid <- grid_regular(
-  trees(range = c(50, 500)),
- levels = 5)
-
-## Set up K-fold CV
-# Tune the workflow
-folds <- vfold_cv(train, v = 5)
-
-tuned_results <- tune_grid(
-  bike_workflow,
-  resamples = folds,
-  grid = bart_grid,
-  metrics = metric_set(rmse, rsq))
-
-## Find best tuning parameters
-best_params <- select_best(tuned_results, metric = "rmse")
-#best_params
-
-## Finalize workflow and predict
-final_wf <- finalize_workflow(
-  bike_workflow,
-  best_params)
-
-final_model <- fit(final_wf, data = train)
+final_model <- fit(automl_wf, data = train)
 
 tree_preds <- predict(final_model, new_data = test)
 ## Finalize workflow and predict
 bike_predictions <- tree_preds %>%
   mutate(.pred = expm1(.pred))
-bike_predictions ## Look at the output
+bike_predictions ## Look at the output 
 
 ## Format the Predictions for Submission to Kaggle
 kaggle_submission <- bike_predictions %>%
