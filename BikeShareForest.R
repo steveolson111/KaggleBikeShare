@@ -45,8 +45,8 @@ bike_recipe <- recipe(log_count~., data=train) %>% # Set model formula and datas
   step_time(datetime, features=c("hour", "minute")) %>% #create time variable
   step_mutate(hour_of_week_sin = sin(2 * pi * hour_of_week / 168),
               hour_of_week_cos = cos(2 * pi * hour_of_week / 168))%>%
-  step_mutate(hour_sin = sin(2 * pi * hour / 168),
-              hour_cos = cos(2 * pi * hour / 168))%>%
+  step_mutate(hour_sin = sin(2 * pi * hour / 24),
+              hour_cos = cos(2 * pi * hour / 24))%>%
   step_mutate(is_weekend = dow %in% c(5,6), is_holiday_weekend = ifelse(holiday == 1 & is_weekend, 1, 0))%>%
   step_rm(datetime)%>%
   step_dummy(all_nominal_predictors()) %>% #create dummy variables
